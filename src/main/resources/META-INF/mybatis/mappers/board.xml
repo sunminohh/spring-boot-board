@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kr.co.jhta.dao.BoardDao">
+
+	<insert id="insertBoard" parameterType="kr.co.jhta.vo.Board">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select boot_boards_seq.nextval
+			from dual
+		</selectKey>
+		insert into spring_boot_boards
+		(board_no, board_title, board_content, user_no)
+		values
+		(#{no}, #{title}, #{content}, #{user.no})
+	</insert>
+	
+	<select id="getBoards" resultType="kr.co.jhta.vo.Board">
+		select *
+		from (
+			select
+				row_number() over (order by A.board_no desc) rownumber,
+				A.board_no				as no,
+				board_title				as title,
+				board_content			as content,
+				board_read_count		as readCount,
+				board_review_count		as reviewCount,
+				board_review_score		as reviewScore,
+				board_deleted			as deleted,
+				board_update_date		as updateDate,
+				board_create_date		as createDate,
+				A.user_no				as "user.no",
+				B.user_email			as "user.email"
+			from spring_boot_boards A, spring_boot_users B
+			where A.user_no = B.user_no
+			and A.board_deleted = 'N'
+		)
+		where rownumber between #{begin} and #{end} 
+	</select>
+	
+	<select id="getTotalRows" parameterType="map" resultType="int">
+		select count(*)
+		from spring_boot_boards
+		where board_deleted = 'N'
+	</select>
+	
+	<select id="getBoardByNo" parameterType="int" resultType="kr.co.jhta.vo.Board">
+		select
+			A.board_no				as no,
+			A.board_title			as title,
+			A.board_content			as content,
+			A.board_read_count		as readCount,
+			A.board_review_count	as reviewCount,
+			A.board_review_score	as reviewScore,
+			A.board_deleted			as deleted,
+			A.board_update_date		as updateDate,
+			A.board_create_date		as createDate,
+			A.user_no				as "user.no",
+			B.user_email			as "user.email"
+		from spring_boot_boards A, spring_boot_users B
+		where A.user_no = B.user_no 
+		and board_deleted = 'N'
+		and A.board_no = #{value}
+	</select>
+	
+	<update id="updateBoard" parameterType="kr.co.jhta.vo.Board" >
+		update spring_boot_boards
+		<set>
+			board_no = #{no},
+			board_title = #{title},
+			board_content = #{content},
+			board_read_count = #{readCount},
+			board_review_count = #{reviewCount},
+			board_deleted = #{deleted},
+			board_update_date = sysdate
+		</set>
+		where board_no = #{no}
+	</update>
+	
+	
+	
+	
+
+</mapper>
+
+
+
+

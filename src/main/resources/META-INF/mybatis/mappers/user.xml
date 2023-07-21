@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="kr.co.jhta.dao.UserDao">
+
+	<insert id="insertUser" parameterType="kr.co.jhta.vo.User">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select boot_users_seq.nextval
+			from dual
+		</selectKey>
+		insert into spring_boot_users
+		(user_no, user_email, user_encrypted_password)
+		values
+		(#{no}, #{email}, #{encryptedPassword}) 
+	</insert>
+	
+	<select id="getUserByEmail" parameterType="string" resultType="kr.co.jhta.vo.User">
+		select
+			USER_NO						as no,
+			USER_EMAIL					as email,
+			USER_ENCRYPTED_PASSWORD		as encryptedPassword,
+			USER_UPDATE_DATE			as updateDate,
+			USER_CREATE_DATE			as createDate
+		from
+			SPRING_BOOT_USERS
+		where USER_EMAIL = #{value}
+			
+		
+	</select>
+	
+	
+	
+
+</mapper>
